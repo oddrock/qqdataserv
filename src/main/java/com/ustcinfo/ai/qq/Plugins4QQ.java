@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.jayway.jsonpath.JsonPath;
 import com.ustcinfo.common.utils.EmailUtils;
+import com.ustcinfo.common.utils.FreezingTimer;
 import com.ustcinfo.common.utils.MyBatisUtil;
 import com.ustcinfo.common.utils.NLPUtils;
 import com.ustcinfo.common.utils.QQUtils;
@@ -65,14 +66,19 @@ public class Plugins4QQ {
 				if(msg.getSender().trim().equals("刘兆刚")
 						|| msg.getSender().trim().equals("小坏蛋")){
 					if(NLPUtils.isNegative(msg.getContent())){
-						logger.warn("负面情绪预警，发邮件");
-						StringBuffer emailContent = new StringBuffer();
-						emailContent.append("发送人：").append(msg.getSender()).append(" | ");
-						if(msg.getQqgroup()!=null){
-							emailContent.append("所在群：").append(msg.getQqgroup()).append(" | ");
+						if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-negative-"+msg.getSender().trim(), 3000000)){
+							logger.warn("负面情绪预警，发邮件");
+							StringBuffer emailContent = new StringBuffer();
+							emailContent.append("发送人：").append(msg.getSender()).append(" | ");
+							if(msg.getQqgroup()!=null){
+								emailContent.append("所在群：").append(msg.getQqgroup()).append(" | ");
+							}
+							emailContent.append("发送内容：").append(msg.getContent());
+							EmailUtils.sendEmailByDefault("负面情绪预警", emailContent.toString());
+						}else{
+							logger.warn("负面情绪预警，5分钟内已发过邮件，不再重复发邮件");
 						}
-						emailContent.append("发送内容：").append(msg.getContent());
-						EmailUtils.sendEmailByDefault("负面情绪预警", emailContent.toString());
+						
 					}
 				}
 				if((msg.getSender().trim().equals("杨总") 
@@ -82,22 +88,34 @@ public class Plugins4QQ {
 						|| msg.getSender().trim().equals("朝天椒")
 						)
 						&& msg.getType().equals("friend_message")){
-					StringBuffer emailContent = new StringBuffer();
-					emailContent.append("发送人：").append(msg.getSender()).append(" | ");
-					if(msg.getQqgroup()!=null){
-						emailContent.append("所在群：").append(msg.getQqgroup()).append(" | ");
+					if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-focus-"+msg.getSender().trim(), 300000)){
+						logger.warn("重要关注人消息，发邮件");
+						StringBuffer emailContent = new StringBuffer();
+						emailContent.append("发送人：").append(msg.getSender()).append(" | ");
+						if(msg.getQqgroup()!=null){
+							emailContent.append("所在群：").append(msg.getQqgroup()).append(" | ");
+						}
+						emailContent.append("发送内容：").append(msg.getContent());
+						EmailUtils.sendEmailByDefault("重要关注人消息", emailContent.toString());
+					}else{
+						logger.warn("重要关注人消息，5分钟内已发过邮件，不再重复发邮件");
 					}
-					emailContent.append("发送内容：").append(msg.getContent());
-					EmailUtils.sendEmailByDefault("重要联系人消息", emailContent.toString());
+					
 				}
 				if(msg.getContent().contains("@荆棘谷的青山")){
-					StringBuffer emailContent = new StringBuffer();
-					emailContent.append("发送人：").append(msg.getSender()).append(" | ");
-					if(msg.getQqgroup()!=null){
-						emailContent.append("所在群：").append(msg.getQqgroup()).append(" | ");
+					if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-at", 300000)){
+						logger.warn("有人QQ上@你了，发邮件");
+						StringBuffer emailContent = new StringBuffer();
+						emailContent.append("发送人：").append(msg.getSender()).append(" | ");
+						if(msg.getQqgroup()!=null){
+							emailContent.append("所在群：").append(msg.getQqgroup()).append(" | ");
+						}
+						emailContent.append("发送内容：").append(msg.getContent());
+						EmailUtils.sendEmailByDefault("有人QQ上@你了", emailContent.toString());
+					}else{
+						logger.warn("有人QQ上@你了，5分钟内已发过邮件，不再重复发邮件");
 					}
-					emailContent.append("发送内容：").append(msg.getContent());
-					EmailUtils.sendEmailByDefault("有人QQ上@你了", emailContent.toString());
+					
 				}
 			}
 		}
@@ -172,7 +190,7 @@ public class Plugins4QQ {
         int retResult = sqlSession.insert(statement,msg);
         sqlSession.close();
 	}
-	
+
 	public static void main(String[] args){
 		System.out.println(new Date());
 	}
