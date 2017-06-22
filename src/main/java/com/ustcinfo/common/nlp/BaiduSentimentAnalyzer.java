@@ -30,7 +30,7 @@ public class BaiduSentimentAnalyzer implements SentimentAnalyzer {
 	}
 	
 	public static void main(String[] args) {
-		String sentence = "你太坏了，有问题";
+		String sentence = "我顶不住这压力了，你们这样搞下去我受不了";
 		//sentence = "你好";
 		System.out.println(new BaiduSentimentAnalyzer().isSentimentNegative(sentence));
 	}

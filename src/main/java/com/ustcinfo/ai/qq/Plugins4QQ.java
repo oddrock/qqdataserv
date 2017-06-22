@@ -12,6 +12,7 @@ import com.ustcinfo.common.utils.EmailUtils;
 import com.ustcinfo.common.utils.FreezingTimer;
 import com.ustcinfo.common.utils.MyBatisUtil;
 import com.ustcinfo.common.utils.NLPUtils;
+import com.ustcinfo.common.utils.PropertiesUtil;
 import com.ustcinfo.common.utils.QQUtils;
 
 @Component("plugins4QQ")
@@ -66,7 +67,7 @@ public class Plugins4QQ {
 				if(msg.getSender().trim().equals("刘兆刚")
 						|| msg.getSender().trim().equals("小坏蛋")){
 					if(NLPUtils.isNegative(msg.getContent())){
-						if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-negative-"+msg.getSender().trim(), 3000000)){
+						if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-negative-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
 							logger.warn("负面情绪预警，发邮件");
 							StringBuffer emailContent = new StringBuffer();
 							emailContent.append("发送人：").append(msg.getSender()).append(" | ");
@@ -88,7 +89,7 @@ public class Plugins4QQ {
 						|| msg.getSender().trim().equals("朝天椒")
 						)
 						&& msg.getType().equals("friend_message")){
-					if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-focus-"+msg.getSender().trim(), 300000)){
+					if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-focus-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
 						logger.warn("重要关注人消息，发邮件");
 						StringBuffer emailContent = new StringBuffer();
 						emailContent.append("发送人：").append(msg.getSender()).append(" | ");
@@ -103,7 +104,7 @@ public class Plugins4QQ {
 					
 				}
 				if(msg.getContent().contains("@荆棘谷的青山")){
-					if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-at", 300000)){
+					if(!FreezingTimer.getInstance().isInFreezingTime("sendmail-at-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
 						logger.warn("有人QQ上@你了，发邮件");
 						StringBuffer emailContent = new StringBuffer();
 						emailContent.append("发送人：").append(msg.getSender()).append(" | ");
@@ -111,9 +112,9 @@ public class Plugins4QQ {
 							emailContent.append("所在群：").append(msg.getQqgroup()).append(" | ");
 						}
 						emailContent.append("发送内容：").append(msg.getContent());
-						EmailUtils.sendEmailByDefault("有人QQ上@你了", emailContent.toString());
+						EmailUtils.sendEmailByDefault(msg.getSender().trim()+"在QQ上@你了", emailContent.toString());
 					}else{
-						logger.warn("有人QQ上@你了，5分钟内已发过邮件，不再重复发邮件");
+						logger.warn(msg.getSender().trim()+"在QQ上@你了，5分钟内已发过邮件，不再重复发邮件");
 					}
 					
 				}
