@@ -20,7 +20,8 @@ public class FreezingTimer {
 	}
 	
 	/**
-	 * 对一个key计算是否已经过了他的冷冻时间，过了就返回false，否则返回true
+	 * 对一个key计算是否当前已经过了他的冷却时间。
+	 * 过了就返回false，并将上一次冷却时间置为当前时间，否则返回true。
 	 * @param key	
 	 * @param intervalInMillis		间隔时间毫秒数
 	 * @return
