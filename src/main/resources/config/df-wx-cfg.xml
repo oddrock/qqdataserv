@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring	http://camel.apache.org/schema/spring/camel-spring-2.13.0.xsd
+       http://www.springframework.org/schema/context	http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:prop/df-wx-cfg.properties" />
+	
+	<camelContext id="wx.dataflowcontext" xmlns="http://camel.apache.org/schema/spring">
+		<propertyPlaceholder id="wx.props" location="classpath:prop/df-common-cfg.properties,classpath:prop/df-wx-cfg.properties" />
+		<endpoint uri="seda:wxasyncSecondStage?waitForTaskToComplete=Never&amp;concurrentConsumers={{common.seda.threadcount}}&amp;blockWhenFull=true&amp;size={{common.seda.queuesize}}&amp;timeout={{common.seda.queuesize}}" id="wxsecondStage" />
+		
+		<route id="wx">
+			<from uri="{{wx.httpserver.mode}}:http://{{common.ip}}:{{wx.httpserver.port}}/{{common.projectname}}/{{wx.httpserver.uri}}{{wx.httpserver.params}}" />
+			<to uri="seda:wxasyncSecondStage?waitForTaskToComplete=Never&amp;concurrentConsumers={{common.seda.threadcount}}&amp;blockWhenFull=true&amp;size={{common.seda.queuesize}}&amp;timeout={{common.seda.queuesize}}"/>
+		</route>
+		
+		<route>
+			<from ref="wxsecondStage" />
+			<to uri="bean:plugins4WX?method=rcv" />
+		</route>
+	</camelContext>
+</beans>

@@ -137,14 +137,14 @@ public class Plugins4QQ {
 			qqmsg.setId(Long.parseLong(JsonPath.read(jsonStr, "$.id").toString()));
 		}
 		qqmsg.setPost_type(JsonPath.read(jsonStr, "$.post_type").toString());
-		qqmsg.setReceiver(JsonPath.read(jsonStr, "$.receiver").toString());
+		qqmsg.setReceiver(QQUtils.filterEmoji(JsonPath.read(jsonStr, "$.receiver").toString()));
 		if(JsonPath.read(jsonStr, "$.receiver_id")!=null){
 			qqmsg.setReceiver_id(Long.parseLong(JsonPath.read(jsonStr, "$.receiver_id").toString()));
 		}
 		if(JsonPath.read(jsonStr, "$.receiver_uid")!=null){
 			qqmsg.setReceiver_uid(Long.parseLong(JsonPath.read(jsonStr, "$.receiver_uid").toString()));
 		}
-		qqmsg.setSender(JsonPath.read(jsonStr, "$.sender").toString());
+		qqmsg.setSender(QQUtils.filterEmoji(JsonPath.read(jsonStr, "$.sender").toString()));
 		if(JsonPath.read(jsonStr, "$.sender_id")!=null){
 			qqmsg.setSender_id(Long.parseLong(JsonPath.read(jsonStr, "$.sender_id").toString()));
 		}
