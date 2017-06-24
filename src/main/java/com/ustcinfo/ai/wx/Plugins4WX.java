@@ -4,8 +4,9 @@ import org.apache.camel.Exchange;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
-
 import com.jayway.jsonpath.JsonPath;
+import com.ustcinfo.common.utils.EmailUtils;
+import com.ustcinfo.common.utils.FreezingTimer;
 import com.ustcinfo.common.utils.MyBatisUtil;
 import com.ustcinfo.common.utils.PropertiesUtil;
 
@@ -43,7 +44,46 @@ public class Plugins4WX {
 	public String alert(Exchange exchange, String payload) throws Exception{
 		Object o = exchange.getProperty("WXMsg");
 		if(o!=null){
-			//TODO
+			WXMsg msg = (WXMsg)o;
+			if("receive_message".equals(msg.getPost_type()) && "friend_message".equals(msg.getWx_type())){
+				String[] keysender = new String[]{
+						"阿阳","李飞","飞总","折腾@苏州",
+						"赵总","徐况","况总","三四郎","曾总",
+						"测试号","独立思考"}; 
+				for(String sender : keysender){
+					if(sender.equals(msg.getSender())){
+						if(!FreezingTimer.getInstance().isInFreezingTime("wx-sendmail-focus-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
+							logger.warn("微信：重要联系人消息，发邮件");
+							StringBuffer emailContent = new StringBuffer();
+							emailContent.append("发送人：").append(msg.getSender());
+							if(msg.getContent()!=null){
+								emailContent.append(" | ").append("发送内容：").append(msg.getContent());
+							}
+							
+							EmailUtils.sendEmailByDefault("微信：重要联系人消息", emailContent.toString());
+						}else{
+							logger.warn("微信：重要联系人消息，5分钟内已发过邮件，不再重复发邮件");
+						}
+						break;
+					}
+				}
+			}
+			if("receive_message".equals(msg.getPost_type()) && msg.getContent()!=null && msg.getContent().contains("@荆棘谷的青山")){
+				if(!FreezingTimer.getInstance().isInFreezingTime("wx-sendmail-at-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
+					logger.warn("有人微信上@你了，发邮件");
+					StringBuffer emailContent = new StringBuffer();
+					emailContent.append("发送人：").append(msg.getSender());
+					if(msg.getWx_group()!=null){
+						emailContent.append(" | ").append("所在群：").append(msg.getWx_group());
+					}
+					if(msg.getContent()!=null){
+						emailContent.append(" | ").append("发送内容：").append(msg.getContent());
+					}
+					EmailUtils.sendEmailByDefault(msg.getSender().trim()+"在微信上@你了", emailContent.toString());
+				}else{
+					logger.warn(msg.getSender().trim()+"在微信上@你了，5分钟内已发过邮件，不再重复发邮件");
+				}
+			}
 		}
 		return payload;
 	}
