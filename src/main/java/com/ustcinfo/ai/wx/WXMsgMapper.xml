@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ustcinfo.ai.wx.WXMsgMapper">
+    <insert id="addMsg" parameterType="com.ustcinfo.ai.wx.WXMsg">
+        insert  into  t_wx_msg(wx_class,content,format,id,info,msg,post_type,receiver,receiver_account,receiver_id,receiver_markname,receiver_name,receiver_uid,sender,sender_account,sender_id,sender_markname,sender_name,sender_uid,source,time,wx_type,media_code,media_data,media_ext,media_mime,media_mtime,media_name,media_path,media_size,media_type,card_account,card_avatar,card_city,card_id,card_name,card_province,card_sex,app_desc,app_id,app_name,app_title,app_url,wx_group,wx_group_id,wx_group_name,wx_group_uid,record_time,summary)  values(#{wx_class},#{content},#{format},#{id},#{info},#{msg},#{post_type},#{receiver},#{receiver_account},#{receiver_id},#{receiver_markname},#{receiver_name},#{receiver_uid},#{sender},#{sender_account},#{sender_id},#{sender_markname},#{sender_name},#{sender_uid},#{source},#{time},#{wx_type},#{media_code},#{media_data},#{media_ext},#{media_mime},#{media_mtime},#{media_name},#{media_path},#{media_size},#{media_type},#{card_account},#{card_avatar},#{card_city},#{card_id},#{card_name},#{card_province},#{card_sex},#{app_desc},#{app_id},#{app_name},#{app_title},#{app_url},#{wx_group},#{wx_group_id},#{wx_group_name},#{wx_group_uid},#{record_time},#{summary})
+    </insert>
+</mapper>

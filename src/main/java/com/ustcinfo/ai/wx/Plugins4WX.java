@@ -1,9 +1,13 @@
 package com.ustcinfo.ai.wx;
 
 import org.apache.camel.Exchange;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
+
 import com.jayway.jsonpath.JsonPath;
+import com.ustcinfo.common.utils.MyBatisUtil;
+import com.ustcinfo.common.utils.PropertiesUtil;
 
 @Component("plugins4WX")
 public class Plugins4WX {
@@ -31,7 +35,7 @@ public class Plugins4WX {
 	public String saveDb(Exchange exchange, String payload){
 		Object o = exchange.getProperty("WXMsg");
 		if(o!=null){
-			
+			saveWXMsg((WXMsg)o);
 		}
 		return payload;
 	}
@@ -39,18 +43,19 @@ public class Plugins4WX {
 	public String alert(Exchange exchange, String payload) throws Exception{
 		Object o = exchange.getProperty("WXMsg");
 		if(o!=null){
-			
+			//TODO
 		}
 		return payload;
 	}
+	
 	private WXMsg parseJsonStr(String jsonStr){
 		WXMsg msg = new WXMsg();
 		msg.setWx_class(JsonPath.read(jsonStr, "$.class").toString());
-		if(getValueFromJsonstr("$.content", jsonStr)!=null){
-			msg.setContent(getValueFromJsonstr("$.content", jsonStr));
-		}
 		if(getValueFromJsonstr("$.format", jsonStr)!=null){
 			msg.setFormat(getValueFromJsonstr("$.format", jsonStr));
+		}
+		if(getValueFromJsonstr("$.content", jsonStr)!=null){
+			msg.setContent(getValueFromJsonstr("$.content", jsonStr));
 		}
 		if(getValueFromJsonstr("$.id", jsonStr)!=null){
 			msg.setId(getValueFromJsonstr("$.id", jsonStr));
@@ -115,7 +120,11 @@ public class Plugins4WX {
 			msg.setMedia_code(Long.parseLong(getValueFromJsonstr("$.media_code", jsonStr)));
 		}
 		if(getValueFromJsonstr("$.media_data", jsonStr)!=null){
-			msg.setMedia_data(getValueFromJsonstr("$.media_data", jsonStr));
+			boolean saveMediaData = Boolean.parseBoolean(PropertiesUtil.getValue("wx.media.savecontent","false"));
+			if(saveMediaData){
+				msg.setMedia_data(getValueFromJsonstr("$.media_data", jsonStr));
+			}
+			
 		}
 		if(getValueFromJsonstr("$.media_ext", jsonStr)!=null){
 			msg.setMedia_ext(getValueFromJsonstr("$.media_ext", jsonStr));
@@ -194,8 +203,10 @@ public class Plugins4WX {
 		if(getValueFromJsonstr("$.group_uid", jsonStr)!=null){
 			msg.setWx_group_uid(getValueFromJsonstr("$.group_uid", jsonStr));
 		}
-		if(msg.getContent()!=null && ("text".equals(msg.getFormat()) 
-				|| "app".equals(msg.getFormat()) || "card".equals(msg.getFormat()))){
+		if(msg.getContent()!=null && (
+				"text".equals(msg.getFormat())
+				|| "app".equals(msg.getFormat()) 
+				|| "card".equals(msg.getFormat()))){
         	if(msg.getContent().length()<64){
         		msg.setSummary(msg.getContent());
         	}else{
@@ -213,6 +224,21 @@ public class Plugins4WX {
 			}
 		}catch(com.jayway.jsonpath.PathNotFoundException e){}
 		return null;
+	}
+	
+	@SuppressWarnings("unused")
+	private void saveWXMsg(WXMsg msg){
+		SqlSession sqlSession = MyBatisUtil.getSqlSession(true);
+        String statement = "com.ustcinfo.ai.wx.WXMsgMapper.addMsg";
+		int retResult = sqlSession.insert(statement,msg);
+		/*// 判断是否保存媒体数据
+		boolean saveMediaData = Boolean.parseBoolean(PropertiesUtil.getValue("wx.media.savecontent","false"));
+        if("media".equals(msg.getFormat())){
+        	if(!saveMediaData){
+        		msg.setMedia_data(null);
+            }
+        }*/
+		sqlSession.close();
 	}
 
 	

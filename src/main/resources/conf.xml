@@ -17,6 +17,7 @@
     
     <mappers>
         <mapper resource="com/ustcinfo/ai/qq/QQMsgMapper.xml"/>
+        <mapper resource="com/ustcinfo/ai/wx/WXMsgMapper.xml"/>
     </mappers>
     
 </configuration>
