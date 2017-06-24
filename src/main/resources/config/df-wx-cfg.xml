@@ -21,6 +21,8 @@
 		<route>
 			<from ref="wxsecondStage" />
 			<to uri="bean:plugins4WX?method=rcv" />
+			<to uri="bean:plugins4WX?method=saveDb" />
+			<to uri="bean:plugins4WX?method=alert" />
 		</route>
 	</camelContext>
 </beans>
