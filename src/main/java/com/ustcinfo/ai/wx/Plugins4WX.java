@@ -51,7 +51,7 @@ public class Plugins4WX {
 						"赵总","徐况","况总","三四郎","曾总",
 						"测试号","独立思考"}; 
 				for(String sender : keysender){
-					if(sender.equals(msg.getSender())){
+					if(sender.equals(msg.getSender()) || sender.equals(msg.getSender_markname())){
 						if(!FreezingTimer.getInstance().isInFreezingTime("wx-sendmail-focus-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
 							logger.warn("微信：重要联系人消息，发邮件");
 							StringBuffer emailContent = new StringBuffer();
