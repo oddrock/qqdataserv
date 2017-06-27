@@ -1,6 +1,6 @@
 package com.ustcinfo.ai.common;
 
-import com.ustcinfo.common.properties.MultiPropertiesReader;
+import com.ustcinfo.common.prop.MultiPropertiesReader;
 
 public class PropertiesManager {
 	private static final MultiPropertiesReader MPR = new MultiPropertiesReader();

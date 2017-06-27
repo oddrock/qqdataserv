@@ -1,4 +1,4 @@
-package com.ustcinfo.common.properties;
+package com.ustcinfo.common.prop;
 
 import java.io.File;
 import java.io.FileInputStream;
