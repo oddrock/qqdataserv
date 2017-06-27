@@ -62,12 +62,17 @@ public class Plugins4Mail {
 			}
 		}
 		List<PdfTask> pdfTaskList = parsePdfTask(emails);
-		for(PdfTask pdfTask : pdfTaskList){
-			logger.warn("------- 解析出PDF转换任务 start --------");
-			logger.warn(pdfTask.getBatch_no() + " | " + pdfTask.getOpt() 
-					+ " | " + pdfTask.getFile_path() + " | " + pdfTask.getTo_email());
-			logger.warn("------- 解析出PDF转换任务 end   --------");
+		int i = 1;
+		if(pdfTaskList.size()>0){
+			logger.warn("------- PDF转换任务 start --------");
+			for(PdfTask pdfTask : pdfTaskList){
+				logger.warn("【任务"+ i++ +"】：" + pdfTask.getBatch_no() + " | " + pdfTask.getOpt() 
+						+ " | " + pdfTask.getFile_path() + " | " + pdfTask.getTo_email());
+				
+			}
+			logger.warn("------- PDF转换任务 end   --------");
 		}
+		
 		logger.warn("has leave Plugins4Mail rcv method");
 		return payload;
 	}
