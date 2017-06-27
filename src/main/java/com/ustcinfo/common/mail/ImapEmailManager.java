@@ -165,8 +165,9 @@ public class ImapEmailManager implements EmailManager{
 	 * @param emails
 	 */
 	public void showEmails(Email[] emails, boolean showContent){
+		if (emails.length==0) return;
 		logger.warn("-------- 收到邮件 start -------");
-		int i = 0;
+		int i = 1;
 		for(Email e : emails){
 			logger.warn("【第"+i+"封邮件 start】");
 			logger.warn(e.getFrom() + " | " + e.getSubject());
