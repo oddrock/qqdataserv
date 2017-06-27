@@ -1,4 +1,4 @@
-package com.ustcinfo.common.nlp;
+package com.ustcinfo.common.nlp.bean;
 
 public class BaiduEmotion {
 	private long log_id = -1;

@@ -1,11 +1,11 @@
-package com.ustcinfo.common.nlp;
+package com.ustcinfo.ai.common;
 
 import org.json.JSONArray;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.ustcinfo.common.utils.SecretPropertiesUtil;
+import com.ustcinfo.common.nlp.SentimentAnalyzer;
 
 public class BosonSentimentAnalyzer implements SentimentAnalyzer {
 	public static final String BOSON_SENTIMENT_URL = "http://api.bosonnlp.com/sentiment/analysis";
@@ -17,9 +17,9 @@ public class BosonSentimentAnalyzer implements SentimentAnalyzer {
 		double negative_prob = -1;
 		String responseStr = null;
 		try {
-			jsonResponse = Unirest.post(SecretPropertiesUtil.getValue("boson.apiurl.sentiment"))
+			jsonResponse = Unirest.post(PropertiesManager.getValue("boson.apiurl.sentiment"))
 					.header("Accept", "application/json")
-					.header("X-Token", SecretPropertiesUtil.getValue("boson.apitoken")).body(body).asJson();
+					.header("X-Token", PropertiesManager.getValue("boson.apitoken")).body(body).asJson();
 			Unirest.shutdown();
 			responseStr = jsonResponse.getBody().toString();
 		} catch (Exception e) {

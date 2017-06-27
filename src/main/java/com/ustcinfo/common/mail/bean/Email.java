@@ -1,7 +1,8 @@
-package com.ustcinfo.common.mail.ext;
+package com.ustcinfo.common.mail.bean;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.mail.Address;
 
 public class Email {

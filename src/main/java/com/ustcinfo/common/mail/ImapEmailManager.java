@@ -1,4 +1,4 @@
-package com.ustcinfo.common.mail.ext;
+package com.ustcinfo.common.mail;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 import javax.activation.DataSource;
 import javax.mail.Authenticator;
 import javax.mail.Flags;
@@ -17,15 +18,19 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMessage;
+
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.apache.log4j.Logger;
+
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
+import com.ustcinfo.common.mail.bean.Email;
+import com.ustcinfo.common.mail.bean.EmailAttachment;
 
 public class ImapEmailManager implements EmailManager{
 	private static Logger logger = Logger.getLogger(ImapEmailManager.class);
-	public Message[] recvNewMail(String imapServer, 
-			String emailAccount, String emailPasswd) {
+	public Message[] recvNewMail(String imapServer, String emailAccount, 
+			String emailPasswd, String folderName, boolean readwriteFlag) {
 		Message[] messages = null;
 		Properties props = new Properties();
 		props.put("mail.imap.host", imapServer);
@@ -37,8 +42,15 @@ public class ImapEmailManager implements EmailManager{
 		try {
 			store = (IMAPStore) session.getStore("imap");
 			store.connect();
-			IMAPFolder folder = (IMAPFolder) store.getFolder("INBOX");
-			folder.open(Folder.READ_WRITE);    
+			if(folderName==null){
+				folderName = "INBOX";
+			}
+			IMAPFolder folder = (IMAPFolder) store.getFolder(folderName);
+			if(readwriteFlag){
+				folder.open(Folder.READ_WRITE);  
+			}else{
+				folder.open(Folder.READ_ONLY);    
+			}
 			messages = folder.getMessages(); 
 			Flags flags;  
 			List<Message> list = new ArrayList<Message>();

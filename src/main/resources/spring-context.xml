@@ -11,6 +11,7 @@
 	<context:component-scan base-package="com.ustcinfo.ai.qq" />
 	<context:component-scan base-package="com.ustcinfo.ai.wx" />
 	<context:component-scan base-package="com.ustcinfo.ai.mail" />
+	<context:component-scan base-package="com.ustcinfo.ai.pdfdealer" />
 	
 	<!-- 导入数据流配置文件 -->
 	<import resource="classpath:config/df-common-cfg.xml"/>

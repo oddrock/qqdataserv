@@ -1,4 +1,4 @@
-package com.ustcinfo.common.camel;
+package com.ustcinfo.common.camel.plugin;
 
 import org.apache.camel.Exchange;
 import org.apache.log4j.Logger;

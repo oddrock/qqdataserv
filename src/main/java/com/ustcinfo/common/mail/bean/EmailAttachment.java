@@ -1,4 +1,4 @@
-package com.ustcinfo.common.mail.ext;
+package com.ustcinfo.common.mail.bean;
 
 public class EmailAttachment {
 	private String name;

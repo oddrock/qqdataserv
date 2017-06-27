@@ -1,15 +1,16 @@
-package com.ustcinfo.common.nlp;
+package com.ustcinfo.ai.common;
 
 import org.json.JSONObject;
+
 import com.baidu.aip.nlp.AipNlp;
 import com.jayway.jsonpath.JsonPath;
-import com.ustcinfo.common.utils.SecretPropertiesUtil;
+import com.ustcinfo.common.nlp.SentimentAnalyzer;
 
 public class BaiduSentimentAnalyzer implements SentimentAnalyzer {
 	public boolean isSentimentNegative(String sentence) {
-		AipNlp client = new AipNlp(SecretPropertiesUtil.getValue("baidu.ai.appid"), 
-				SecretPropertiesUtil.getValue("baidu.ai.appkey"), 
-				SecretPropertiesUtil.getValue("baidu.ai.secretkey"));
+		AipNlp client = new AipNlp(PropertiesManager.getValue("baidu.ai.appid"), 
+				PropertiesManager.getValue("baidu.ai.appkey"), 
+				PropertiesManager.getValue("baidu.ai.secretkey"));
 		client.setConnectionTimeoutInMillis(2000);
         client.setSocketTimeoutInMillis(60000);
 		JSONObject response = client.sentimentClassify(sentence);

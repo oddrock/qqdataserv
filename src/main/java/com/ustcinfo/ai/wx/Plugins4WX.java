@@ -4,11 +4,12 @@ import org.apache.camel.Exchange;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
+
 import com.jayway.jsonpath.JsonPath;
-import com.ustcinfo.common.utils.EmailUtils;
+import com.ustcinfo.ai.common.EmailManager;
+import com.ustcinfo.ai.common.PropertiesManager;
 import com.ustcinfo.common.utils.FreezingTimer;
 import com.ustcinfo.common.utils.MyBatisUtil;
-import com.ustcinfo.common.utils.PropertiesUtil;
 
 @Component("plugins4WX")
 public class Plugins4WX {
@@ -52,7 +53,7 @@ public class Plugins4WX {
 						"测试号","独立思考"}; 
 				for(String sender : keysender){
 					if(sender.equals(msg.getSender()) || sender.equals(msg.getSender_markname())){
-						if(!FreezingTimer.getInstance().isInFreezingTime("wx-sendmail-focus-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
+						if(!FreezingTimer.getInstance().isInFreezingTime("wx-sendmail-focus-"+msg.getSender().trim(), Long.parseLong(PropertiesManager.getValue("inform.interval_in_millis")))){
 							logger.warn("微信：重要联系人消息，发邮件");
 							StringBuffer emailContent = new StringBuffer();
 							emailContent.append("发送人：").append(msg.getSender());
@@ -60,7 +61,7 @@ public class Plugins4WX {
 								emailContent.append(" | ").append("发送内容：").append(msg.getContent());
 							}
 							
-							EmailUtils.sendEmailByDefault("微信：重要联系人消息", emailContent.toString());
+							EmailManager.sendEmailByDefault("微信：重要联系人消息", emailContent.toString());
 						}else{
 							logger.warn("微信：重要联系人消息，5分钟内已发过邮件，不再重复发邮件");
 						}
@@ -69,7 +70,7 @@ public class Plugins4WX {
 				}
 			}
 			if("receive_message".equals(msg.getPost_type()) && msg.getContent()!=null && msg.getContent().contains("@荆棘谷的青山")){
-				if(!FreezingTimer.getInstance().isInFreezingTime("wx-sendmail-at-"+msg.getSender().trim(), Long.parseLong(PropertiesUtil.getValue("inform.interval_in_millis")))){
+				if(!FreezingTimer.getInstance().isInFreezingTime("wx-sendmail-at-"+msg.getSender().trim(), Long.parseLong(PropertiesManager.getValue("inform.interval_in_millis")))){
 					logger.warn("有人微信上@你了，发邮件");
 					StringBuffer emailContent = new StringBuffer();
 					emailContent.append("发送人：").append(msg.getSender());
@@ -79,7 +80,7 @@ public class Plugins4WX {
 					if(msg.getContent()!=null){
 						emailContent.append(" | ").append("发送内容：").append(msg.getContent());
 					}
-					EmailUtils.sendEmailByDefault(msg.getSender().trim()+"在微信上@你了", emailContent.toString());
+					EmailManager.sendEmailByDefault(msg.getSender().trim()+"在微信上@你了", emailContent.toString());
 				}else{
 					logger.warn(msg.getSender().trim()+"在微信上@你了，5分钟内已发过邮件，不再重复发邮件");
 				}
@@ -160,7 +161,7 @@ public class Plugins4WX {
 			msg.setMedia_code(Long.parseLong(getValueFromJsonstr("$.media_code", jsonStr)));
 		}
 		if(getValueFromJsonstr("$.media_data", jsonStr)!=null){
-			boolean saveMediaData = Boolean.parseBoolean(PropertiesUtil.getValue("wx.media.savecontent","false"));
+			boolean saveMediaData = Boolean.parseBoolean(PropertiesManager.getValue("wx.media.savecontent","false"));
 			if(saveMediaData){
 				msg.setMedia_data(getValueFromJsonstr("$.media_data", jsonStr));
 			}

@@ -1,6 +1,6 @@
 package com.ustcinfo.ai.common;
 
-import com.ustcinfo.common.utils.MultiPropertiesReader;
+import com.ustcinfo.common.properties.MultiPropertiesReader;
 
 public class PropertiesManager {
 	private static final MultiPropertiesReader MPR = new MultiPropertiesReader();
@@ -15,6 +15,8 @@ public class PropertiesManager {
 		MPR.addFilePath("prop/df-test-cfg.properties");
 		MPR.addFilePath("prop/df-qq-cfg.properties");
 		MPR.addFilePath("prop/df-wx-cfg.properties");
+		MPR.addFilePath("prop/secret/db.properties");
+		MPR.addFilePath("prop/secret/qqdataserv-secret.properties");
 		MPR.loadProperties();
 	}
 	
