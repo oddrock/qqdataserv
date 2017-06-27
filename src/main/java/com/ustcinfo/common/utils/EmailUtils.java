@@ -2,13 +2,10 @@ package com.ustcinfo.common.utils;
 
 import java.util.Date;
 import java.util.Properties;
-
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
-import com.ustcinfo.ai.common.EmailManager;
 
 public class EmailUtils {
 	/**
