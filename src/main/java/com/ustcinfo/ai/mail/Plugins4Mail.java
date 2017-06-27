@@ -46,7 +46,7 @@ public class Plugins4Mail {
 			logger.warn(pdfTask.getTo_email());
 			logger.warn("---------------");
 		}
-		iem.showEmails(emails);
+		iem.showEmails(emails, true);
 		return payload;
 	}
 	

@@ -164,11 +164,12 @@ public class ImapEmailManager implements EmailManager{
 	 * 显示接收到的邮件
 	 * @param emails
 	 */
-	public void showEmails(Email[] emails){
+	public void showEmails(Email[] emails, boolean showContent){
 		for(Email e : emails){
 			logger.warn("---------------");
 			logger.warn(e.getFrom());
 			logger.warn(e.getSubject());
+			logger.warn(e.getPlainContent());
 			for(EmailAttachment ea : e.getAttachments()){
 				logger.warn(ea.getLocalFilePath());
 			}
