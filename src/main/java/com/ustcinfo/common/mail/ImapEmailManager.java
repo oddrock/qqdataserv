@@ -169,7 +169,9 @@ public class ImapEmailManager implements EmailManager{
 			logger.warn("---------------");
 			logger.warn(e.getFrom());
 			logger.warn(e.getSubject());
-			logger.warn(e.getPlainContent());
+			if(showContent){
+				logger.warn(e.getPlainContent());
+			}
 			for(EmailAttachment ea : e.getAttachments()){
 				logger.warn(ea.getLocalFilePath());
 			}

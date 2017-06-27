@@ -1,5 +1,7 @@
 package com.ustcinfo.ai.mail;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,9 +11,12 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.ustcinfo.ai.common.PropertiesManager;
+import com.ustcinfo.common.file.UrlFileDownloader;
 import com.ustcinfo.common.mail.ImapEmailManager;
 import com.ustcinfo.common.mail.bean.Email;
 import com.ustcinfo.common.mail.bean.EmailAttachment;
+import com.ustcinfo.common.qq.file.QQFileDownloader;
+import com.ustcinfo.common.qq.file.bean.QQFileHtmlUrls;
 import com.ustcinfo.common.utils.DateUtils;
 import com.ustcinfo.common.utils.FileUtils;
 import com.ustcinfo.common.utils.StringUtils;
@@ -37,16 +42,35 @@ public class Plugins4Mail {
 		if(emails.length==0){
 			logger.warn("没有任何邮件");
 		}
+		//iem.showEmails(emails, true);
+		EmailAttachment ea = null;
+		// 解析其中的QQ中转站下载连接，下载QQ中转站文件作为附件
+		for(Email email: emails){
+			List<QQFileHtmlUrls> list = QQFileDownloader.parseQQFileHtmlUrlsFromQQMail(email.getPlainContent());
+			for(QQFileHtmlUrls e : list){	
+				try {
+					logger.warn("开始下载：" + e.getQqFileName() + " | " + e.getQqFileHtmlUrl());
+					UrlFileDownloader.downLoadFromUrl(e.getQqFileHtmlUrl(), e.getQqFileName(), attachmentLocalFolder);
+					ea = new EmailAttachment();
+					ea.setName(e.getQqFileName());
+					ea.setLocalFilePath(attachmentLocalFolder + File.separator + e.getQqFileName());
+					email.getAttachments().add(ea);
+					logger.warn("结束下载：" + e.getQqFileName() + " | " + e.getQqFileHtmlUrl());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 		List<PdfTask> pdfTaskList = parsePdfTask(emails);
-		for(PdfTask pdfTask : pdfTaskList){
+		/*for(PdfTask pdfTask : pdfTaskList){
 			logger.warn("---------------");
 			logger.warn(pdfTask.getBatch_no());
 			logger.warn(pdfTask.getOpt());
 			logger.warn(pdfTask.getFile_path());
 			logger.warn(pdfTask.getTo_email());
 			logger.warn("---------------");
-		}
-		iem.showEmails(emails, true);
+		}*/
+		logger.warn("has leave Plugins4Mail rcv method");
 		return payload;
 	}
 	
