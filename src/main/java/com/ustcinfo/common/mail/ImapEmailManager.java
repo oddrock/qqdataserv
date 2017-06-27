@@ -79,7 +79,6 @@ public class ImapEmailManager implements EmailManager{
 	 */
 	public Email[] parseEmail(Message[] messages, String localAttachmentFolderPath){
 		if (messages == null || messages.length == 0) {
-			logger.warn("没有任何邮件");
 			return new Email[]{};
 		} 
 		Email[] emails = new Email[messages.length];
@@ -159,5 +158,21 @@ public class ImapEmailManager implements EmailManager{
 				return new PasswordAuthentication(userName, password);
 			}
 		};
+	}
+	
+	/**
+	 * 显示接收到的邮件
+	 * @param emails
+	 */
+	public void showEmails(Email[] emails){
+		for(Email e : emails){
+			logger.warn("---------------");
+			logger.warn(e.getFrom());
+			logger.warn(e.getSubject());
+			for(EmailAttachment ea : e.getAttachments()){
+				logger.warn(ea.getLocalFilePath());
+			}
+			logger.warn("---------------");
+		}
 	}
 }

@@ -34,6 +34,9 @@ public class Plugins4Mail {
 			readwriteFlag = true;
 		}
 		Email[] emails = iem.parseEmail(iem.recvNewMail(imapServer, emailAccount, emailPasswd, folderName, readwriteFlag), attachmentLocalFolder);
+		if(emails.length==0){
+			logger.warn("没有任何邮件");
+		}
 		List<PdfTask> pdfTaskList = parsePdfTask(emails);
 		for(PdfTask pdfTask : pdfTaskList){
 			logger.warn("---------------");
@@ -43,15 +46,7 @@ public class Plugins4Mail {
 			logger.warn(pdfTask.getTo_email());
 			logger.warn("---------------");
 		}
-		for(Email e : emails){
-			logger.warn("---------------");
-			logger.warn(e.getFrom());
-			logger.warn(e.getSubject());
-			for(EmailAttachment ea : e.getAttachments()){
-				logger.warn(ea.getLocalFilePath());
-			}
-			logger.warn("---------------");
-		}
+		iem.showEmails(emails);
 		return payload;
 	}
 	
@@ -123,7 +118,7 @@ public class Plugins4Mail {
 			}
 			Date now = new Date();
 			PdfTask pdfTask = null;
-			String batchNo = email.getFrom()+"|"+StringUtils.substringFrontN(email.getSubject(), 16)+"|"+DateUtils.getFormatTime1(now);
+			String batchNo = email.getFrom()+"|"+StringUtils.substringFrontN(email.getSubject(), 32)+"|"+DateUtils.getFormatTime1(now);
 			for(EmailAttachment attachment : email.getAttachments()){		
 				if(FileUtils.getFileNameSuffix(attachment.getLocalFilePath()).equalsIgnoreCase("pdf")){
 					pdfTask = new PdfTask();
