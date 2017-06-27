@@ -4,7 +4,7 @@ import javax.mail.Message;
 
 public interface EmailManager {
 	public abstract Message[] recvNewMail(
-			String imapServer, String emailAccount, 
+			String recvServer, String emailAccount, 
 			String emailPasswd, String folderName, boolean readwriteFlag);
 	
 }
