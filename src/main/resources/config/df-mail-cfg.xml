@@ -10,9 +10,9 @@
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:prop/df-mail-cfg.properties" />
 	
 	<camelContext id="mail.dataflowcontext" xmlns="http://camel.apache.org/schema/spring">
-		<propertyPlaceholder id="mail.props" location="classpath:prop/df-common-cfg.properties,classpath:prop/df-mail-cfg.properties,classpath:prop/secret/qqdataserv-secret.properties" />
+		<propertyPlaceholder id="mail.props" location="classpath:prop/df-common-cfg.properties,classpath:prop/df-mail-cfg.properties,classpath:prop/qqdataserv.properties" />
 		<route id="mail">
-			<from uri="timer://pdfmail?fixedRate=true&amp;period=60000"/>
+			<from uri="timer://pdfmail?fixedRate=true&amp;period={{mail.pdfdealer.timerperiod}}"/>
 			<to uri="bean:plugins4Mail?method=rcv" />
 		</route>
 	</camelContext>

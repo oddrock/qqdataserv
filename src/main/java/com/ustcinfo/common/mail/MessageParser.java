@@ -38,8 +38,8 @@ public class MessageParser {
 			String subject = parser.getSubject(); // 获取邮件主题
 			String htmlContent = parser.getHtmlContent(); // 获取Html内容
 			String plainContent = parser.getPlainContent(); // 获取纯文本邮件内容（注：有些邮件不支持html）
-
 			System.out.println(subject);
+			System.out.println(plainContent);
 
 			List<DataSource> attachments = parser.getAttachmentList(); // 获取附件，并写入磁盘
 			for (DataSource ds : attachments) {

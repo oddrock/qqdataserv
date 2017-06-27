@@ -11,6 +11,6 @@ public class MailTest {
 
 	public static void main(String[] args){
 		MessageParser.parse(SimpleMailReceiver.fetchInbox(HostType.NETEASE.getProperties(),
-				AuthenticatorGenerator.getAuthenticator("bakerstreet221b520@163.com", "ustcinfo123")));
+				AuthenticatorGenerator.getAuthenticator("邮箱", "密码")));
 	}
 }
