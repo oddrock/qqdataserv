@@ -165,17 +165,20 @@ public class ImapEmailManager implements EmailManager{
 	 * @param emails
 	 */
 	public void showEmails(Email[] emails, boolean showContent){
+		logger.warn("-------- 收到邮件 start -------");
+		int i = 0;
 		for(Email e : emails){
-			logger.warn("---------------");
-			logger.warn(e.getFrom());
-			logger.warn(e.getSubject());
+			logger.warn("【第"+i+"封邮件 start】");
+			logger.warn(e.getFrom() + " | " + e.getSubject());
 			if(showContent){
 				logger.warn(e.getPlainContent());
 			}
 			for(EmailAttachment ea : e.getAttachments()){
 				logger.warn(ea.getLocalFilePath());
 			}
-			logger.warn("---------------");
+			logger.warn("【第"+i+"封邮件 end】");
+			i++;
 		}
+		logger.warn("-------- 收到邮件 end   -------");
 	}
 }

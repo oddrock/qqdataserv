@@ -42,7 +42,7 @@ public class Plugins4Mail {
 		if(emails.length==0){
 			logger.warn("没有任何邮件");
 		}
-		//iem.showEmails(emails, true);
+		iem.showEmails(emails, false);
 		EmailAttachment ea = null;
 		// 解析其中的QQ中转站下载连接，下载QQ中转站文件作为附件
 		for(Email email: emails){
@@ -62,20 +62,18 @@ public class Plugins4Mail {
 			}
 		}
 		List<PdfTask> pdfTaskList = parsePdfTask(emails);
-		/*for(PdfTask pdfTask : pdfTaskList){
-			logger.warn("---------------");
-			logger.warn(pdfTask.getBatch_no());
-			logger.warn(pdfTask.getOpt());
-			logger.warn(pdfTask.getFile_path());
-			logger.warn(pdfTask.getTo_email());
-			logger.warn("---------------");
-		}*/
+		for(PdfTask pdfTask : pdfTaskList){
+			logger.warn("------- 解析出PDF转换任务 start --------");
+			logger.warn(pdfTask.getBatch_no() + " | " + pdfTask.getOpt() 
+					+ " | " + pdfTask.getFile_path() + " | " + pdfTask.getTo_email());
+			logger.warn("------- 解析出PDF转换任务 end   --------");
+		}
 		logger.warn("has leave Plugins4Mail rcv method");
 		return payload;
 	}
 	
 	/*
-	 * 将收到的邮件解析为PDF转换任务
+	 * 将收到的邮件批量解析为PDF转换任务
 	 */
 	private List<PdfTask> parsePdfTask(Email[] emails){
 		List<PdfTask> pdfTaskList = new ArrayList<PdfTask>();
@@ -90,6 +88,9 @@ public class Plugins4Mail {
 		return pdfTaskList;
 	}
 
+	/*
+	 * 将收到的一份邮件解析为PDF转换任务
+	 */
 	private List<PdfTask> parsePdfTask(Email email) {
 		List<PdfTask> pdfTaskList = new ArrayList<PdfTask>();
 		if(email==null) return pdfTaskList;
@@ -142,7 +143,7 @@ public class Plugins4Mail {
 			}
 			Date now = new Date();
 			PdfTask pdfTask = null;
-			String batchNo = email.getFrom()+"|"+StringUtils.substringFrontN(email.getSubject(), 32)+"|"+DateUtils.getFormatTime1(now);
+			String batchNo = email.getFrom()+"|"+StringUtils.substringFrontN(email.getSubject(), 64)+"|"+DateUtils.getFormatTime1(now);
 			for(EmailAttachment attachment : email.getAttachments()){		
 				if(FileUtils.getFileNameSuffix(attachment.getLocalFilePath()).equalsIgnoreCase("pdf")){
 					pdfTask = new PdfTask();
@@ -156,15 +157,9 @@ public class Plugins4Mail {
 					pdfTask.setTo_email(recvmail);
 					pdfTaskList.add(pdfTask);
 				}
-				
 			}	
 		}
 		return pdfTaskList;
 		
 	}
-	
-	public static void main(String[] args){
-
-	}
-	
 }
