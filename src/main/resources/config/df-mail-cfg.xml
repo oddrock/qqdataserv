@@ -11,8 +11,15 @@
 	
 	<camelContext id="mail.dataflowcontext" xmlns="http://camel.apache.org/schema/spring">
 		<propertyPlaceholder id="mail.props" location="classpath:prop/df-common-cfg.properties,classpath:prop/df-mail-cfg.properties,classpath:prop/qqdataserv.properties" />
+		<endpoint uri="seda:mailsecondStage?{{common.seda.stdparams}}" id="mailsecondStage" />
+		
 		<route id="mail">
 			<from uri="timer://pdfmail?fixedRate=true&amp;period={{mail.pdfdealer.timerperiod}}"/>
+			<to uri="seda:mailsecondStage?waitForTaskToComplete=Never&amp;{{common.seda.stdparams}}"/>
+		</route>
+		
+		<route>
+			<from ref="mailsecondStage" />
 			<to uri="bean:plugins4Mail?method=rcv" />
 		</route>
 	</camelContext>

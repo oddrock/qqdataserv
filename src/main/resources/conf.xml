@@ -18,6 +18,7 @@
     <mappers>
         <mapper resource="com/ustcinfo/ai/qq/QQMsgMapper.xml"/>
         <mapper resource="com/ustcinfo/ai/wx/WXMsgMapper.xml"/>
+        <mapper resource="com/ustcinfo/ai/mail/bean/PdfTaskMapper.xml"/>
     </mappers>
     
 </configuration>

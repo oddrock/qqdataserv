@@ -75,7 +75,7 @@ public class UrlFileDownloader {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String url = "http://tj-ctfs.ftn.qq.com/ftn_handler/ab0c11bdefd56733674830f47daeebabfd7a4ec716e1c9fe3d7162466aca54e850c48b40ff1cd3bfbc352d02278073fc14547305484bf594a810f03abb450e50/?fname=B10.pdf&k=09623361863a8fcf26b905794261041d505451575c030154185a0203554c0206535a1e595259531f0151060754580f04045157526466367004521d1100073644&fr=00&&txf_fid=c051f52f14e3c526418afb70012db5626aae1cd2";
-		downLoadFromUrl(url, "B10.pdf", "C:/_Download/upload/");
+		String url = "https://mail.qq.com/cgi-bin/ftnExs_download?k=6d383431416c2e9925e3022913630249520e0c57535654501b090404504e0407040f19500d02074b0559010503530702005e0c54354530d9f08cc788cfd784d3d1e8f1fbf7b185d4ccfe83e0e5d492aad3f7818cdcaaec1002164455536346&t=exs_ftn_download&code=68415c0f";
+		downLoadFromUrl(url, "科大国创电信事业产品研发体系介绍v4.pdf", "C:/_Download/");
 	}
 }

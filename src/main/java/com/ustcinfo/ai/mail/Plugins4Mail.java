@@ -7,10 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.camel.Exchange;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.ustcinfo.ai.common.PropertiesManager;
+import com.ustcinfo.ai.mail.bean.PdfTask;
 import com.ustcinfo.common.file.UrlFileDownloader;
 import com.ustcinfo.common.mail.ImapEmailManager;
 import com.ustcinfo.common.mail.bean.Email;
@@ -19,6 +21,7 @@ import com.ustcinfo.common.qq.file.QQFileDownloader;
 import com.ustcinfo.common.qq.file.bean.QQFileHtmlUrls;
 import com.ustcinfo.common.utils.DateUtils;
 import com.ustcinfo.common.utils.FileUtils;
+import com.ustcinfo.common.utils.MyBatisUtil;
 import com.ustcinfo.common.utils.StringUtils;
 
 @Component("plugins4Mail")
@@ -44,18 +47,20 @@ public class Plugins4Mail {
 		}
 		iem.showEmails(emails, false);
 		EmailAttachment ea = null;
+		String qqFileUrl = null;
 		// 解析其中的QQ中转站下载连接，下载QQ中转站文件作为附件
 		for(Email email: emails){
 			List<QQFileHtmlUrls> list = QQFileDownloader.parseQQFileHtmlUrlsFromQQMail(email.getPlainContent());
 			for(QQFileHtmlUrls e : list){	
 				try {
-					logger.warn("开始下载：" + e.getQqFileName() + " | " + e.getQqFileHtmlUrl());
-					UrlFileDownloader.downLoadFromUrl(e.getQqFileHtmlUrl(), e.getQqFileName(), attachmentLocalFolder);
+					qqFileUrl = QQFileDownloader.parseQQFileUrlsFromQQFileHtmlUrl(e.getQqFileHtmlUrl()).get(0);
+					logger.warn("开始下载：" + e.getQqFileName() + " | " + qqFileUrl);
+					UrlFileDownloader.downLoadFromUrl(qqFileUrl, e.getQqFileName(), attachmentLocalFolder);
 					ea = new EmailAttachment();
 					ea.setName(e.getQqFileName());
 					ea.setLocalFilePath(attachmentLocalFolder + File.separator + e.getQqFileName());
 					email.getAttachments().add(ea);
-					logger.warn("结束下载：" + e.getQqFileName() + " | " + e.getQqFileHtmlUrl());
+					logger.warn("结束下载：" + e.getQqFileName() + " | " + qqFileUrl);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -67,12 +72,11 @@ public class Plugins4Mail {
 			logger.warn("------- PDF转换任务 start --------");
 			for(PdfTask pdfTask : pdfTaskList){
 				logger.warn("【任务"+ i++ +"】：" + pdfTask.getBatch_no() + " | " + pdfTask.getOpt() 
-						+ " | " + pdfTask.getFile_path() + " | " + pdfTask.getTo_email());
-				
+						+ " | " + pdfTask.getFile_path() + " | " + pdfTask.getTo_email());			
 			}
 			logger.warn("------- PDF转换任务 end   --------");
 		}
-		
+		savePdfTaskToDb(pdfTaskList);
 		logger.warn("has leave Plugins4Mail rcv method");
 		return payload;
 	}
@@ -148,7 +152,9 @@ public class Plugins4Mail {
 			}
 			Date now = new Date();
 			PdfTask pdfTask = null;
-			String batchNo = email.getFrom()+"|"+StringUtils.substringFrontN(email.getSubject(), 64)+"|"+DateUtils.getFormatTime1(now);
+			String batchNo = email.getFrom()
+					+"|"+StringUtils.substringFrontN(email.getSubject(), 64)
+					+"|"+DateUtils.getFormatTime1(now);
 			for(EmailAttachment attachment : email.getAttachments()){		
 				if(FileUtils.getFileNameSuffix(attachment.getLocalFilePath()).equalsIgnoreCase("pdf")){
 					pdfTask = new PdfTask();
@@ -160,11 +166,22 @@ public class Plugins4Mail {
 					pdfTask.setOpt(std_opt);
 					pdfTask.setTask_status("todo");
 					pdfTask.setTo_email(recvmail);
+					pdfTask.setUpdate_time(now);
 					pdfTaskList.add(pdfTask);
 				}
 			}	
 		}
 		return pdfTaskList;
-		
+	}
+	
+	@SuppressWarnings("unused")
+	private void savePdfTaskToDb(List<PdfTask> pdfTaskList){
+		SqlSession sqlSession = MyBatisUtil.getSqlSession(true);
+		String statement = "com.ustcinfo.ai.mail.bean.PdfTaskMapper.addTask";//映射sql的标识字符串
+		int retResult;
+		for(PdfTask pt : pdfTaskList){
+	        retResult = sqlSession.insert(statement,pt);
+		}
+		sqlSession.close();
 	}
 }

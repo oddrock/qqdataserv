@@ -1,4 +1,4 @@
-package com.ustcinfo.ai.mail;
+package com.ustcinfo.ai.mail.bean;
 
 import java.util.Date;
 

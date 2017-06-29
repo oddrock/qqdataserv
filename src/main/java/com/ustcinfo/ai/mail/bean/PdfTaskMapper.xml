@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ustcinfo.ai.mail.bean.PdfTaskMapper">
+    <insert id="addTask" parameterType="com.ustcinfo.ai.mail.bean.PdfTask">
+    	insert into t_pdf_task(batch_no,file_path,opt,task_status,from_email,from_subject,to_email,create_time,update_time)  values(#{batch_no},#{file_path},#{opt},#{task_status},#{from_email},#{from_subject},#{to_email},#{create_time},#{update_time})
+    </insert>
+</mapper>
