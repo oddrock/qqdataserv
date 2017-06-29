@@ -7,20 +7,27 @@
        http://camel.apache.org/schema/spring	http://camel.apache.org/schema/spring/camel-spring-2.13.0.xsd
        http://www.springframework.org/schema/context	http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 	
-	<context:property-placeholder ignore-unresolvable="true" location="classpath:prop/df-mail-cfg.properties" />
-	
 	<camelContext id="mail.dataflowcontext" xmlns="http://camel.apache.org/schema/spring">
-		<propertyPlaceholder id="mail.props" location="classpath:prop/df-common-cfg.properties,classpath:prop/df-mail-cfg.properties,classpath:prop/qqdataserv.properties" />
-		<endpoint uri="seda:mailsecondStage?{{common.seda.stdparams}}" id="mailsecondStage" />
+		<propertyPlaceholder id="mail.props" location="classpath:prop/df-common-cfg.properties,classpath:prop/qqdataserv.properties,classpath:prop/secret/qqdataserv-secret.properties" />
+		<endpoint uri="seda:rcvmailsecondStage?{{common.seda.stdparams}}" id="rcvmailsecondStage" />
+		<endpoint uri="seda:dotasksecondStage?{{common.seda.stdparams}}" id="dotasksecondStage" />
 		
-		<route id="mail">
-			<from uri="timer://pdfmail?fixedRate=true&amp;period={{mail.pdfdealer.timerperiod}}"/>
-			<to uri="seda:mailsecondStage?waitForTaskToComplete=Never&amp;{{common.seda.stdparams}}"/>
+		<route id="rcvmail">
+			<from uri="timer://rcvmail?fixedRate=true&amp;period={{pdfdealer.rcvmail.timerperiod}}"/>
+			<to uri="seda:rcvmailsecondStage?waitForTaskToComplete=Never&amp;{{common.seda.stdparams}}"/>
+		</route>
+		<route>
+			<from ref="rcvmailsecondStage" />
+			<to uri="bean:plugins4Mail?method=rcv" />
 		</route>
 		
+		<route id="dotask">
+			<from uri="timer://dotask?fixedRate=true&amp;period={{pdfdealer.dotask.timerperiod}}"/>
+			<to uri="seda:dotasksecondStage?waitForTaskToComplete=Never&amp;{{common.seda.stdparams}}"/>
+		</route>
 		<route>
-			<from ref="mailsecondStage" />
-			<to uri="bean:plugins4Mail?method=rcv" />
+			<from ref="dotasksecondStage" />
+			<to uri="bean:plugins4Mail?method=dotask" />
 		</route>
 	</camelContext>
 </beans>

@@ -184,4 +184,10 @@ public class Plugins4Mail {
 		}
 		sqlSession.close();
 	}
+	
+	public String dotask(Exchange exchange, String payload){
+		logger.warn("has enter Plugins4Mail dotask method");
+		logger.warn("has leave Plugins4Mail dotask method");
+		return payload;
+	}
 }

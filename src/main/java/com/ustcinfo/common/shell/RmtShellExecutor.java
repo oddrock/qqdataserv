@@ -3,10 +3,8 @@ package com.ustcinfo.common.shell;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ch.ethz.ssh2.ChannelCondition;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
