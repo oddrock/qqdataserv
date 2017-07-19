@@ -3,26 +3,38 @@ package com.ustcinfo.common.shell;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.ustcinfo.common.shell.bean.RmtShellExcutorOutput;
+
 import ch.ethz.ssh2.ChannelCondition;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 
 public class RmtShellExecutor {
-    private static final Logger LOG = LoggerFactory.getLogger(RmtShellExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(RmtShellExecutor.class);
     private Connection conn;
     private String ip;
     private String usr;
     private String psword;
+    private int timeout = 1000 * 60 * 5;
     private String charset = Charset.defaultCharset().toString();
-    private static final int TIME_OUT = 1000 * 5 * 60;
+
 
     public RmtShellExecutor(String ip, String usr, String ps) {
         this.ip = ip;
         this.usr = usr;
         this.psword = ps;
+    }
+    
+    public RmtShellExecutor(String ip, String usr, String ps, int timeout) {
+        this.ip = ip;
+        this.usr = usr;
+        this.psword = ps;
+        this.timeout=timeout;
     }
 
     private boolean login() throws IOException {
@@ -32,7 +44,8 @@ public class RmtShellExecutor {
     }
 
     @SuppressWarnings("unused")
-	public String exec(String cmds) throws IOException {
+	public RmtShellExcutorOutput exec(String cmds){
+    	RmtShellExcutorOutput out = new RmtShellExcutorOutput();
         InputStream stdOut = null;
         InputStream stdErr = null;
         String outStr = "";
@@ -44,27 +57,39 @@ public class RmtShellExecutor {
                 session.execCommand(cmds);
                 stdOut = new StreamGobbler(session.getStdout());
                 outStr = processStream(stdOut, charset);
-                LOG.info("caijl:[INFO] outStr=" + outStr);
+                out.setStdOut(outStr);
+                logger.info("caijl:[INFO] outStr=" + outStr);
                 stdErr = new StreamGobbler(session.getStderr());
                 outErr = processStream(stdErr, charset);
-                LOG.info("caijl:[INFO] outErr=" + outErr);
-                session.waitForCondition(ChannelCondition.EXIT_STATUS, TIME_OUT);
+                out.setStdErr(outErr);
+                logger.info("caijl:[INFO] outErr=" + outErr);
+                session.waitForCondition(ChannelCondition.EXIT_STATUS, timeout);
                 ret = session.getExitStatus();
             } else {
-                LOG.error("caijl:[INFO] ssh2 login failure:" + ip);
-                throw new IOException("SSH2_ERR");
+                logger.error("caijl:[INFO] ssh2 login failure:" + ip);
+                out.setStdErr("caijl:[INFO] ssh2 login failure:" + ip);
             }
 
-        } finally {
+        }catch(IOException e){
+        	e.printStackTrace();
+        }finally {
             if (conn != null) {
                 conn.close();
             }
             if (stdOut != null)
-                stdOut.close();
+				try {
+					stdOut.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
             if (stdErr != null)
-                stdErr.close();
+				try {
+					stdErr.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
         }
-        return outStr;
+        return out;
     }
 
     private String processStream(InputStream in, String charset) throws IOException {
@@ -83,13 +108,9 @@ public class RmtShellExecutor {
         String shPath = "/root/ab.sh";
         RmtShellExecutor exe = new RmtShellExecutor(serverIP, usr, password);
         String outInf;
-        try {
-        	outInf = exe.exec("ls -al");				// 执行Linux命令
-            System.out.println("outInf= " + outInf);
-            outInf = exe.exec("sh " + shPath + " xn");	// 执行Shell脚本
-            System.out.println("outInf= " + outInf);  
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        outInf = exe.exec("ls -al").getOutputStr();				// 执行Linux命令
+        System.out.println("outInf= " + outInf);
+        outInf = exe.exec("sh " + shPath + " xn").getOutputStr();	// 执行Shell脚本
+        System.out.println("outInf= " + outInf); 
     }
 }

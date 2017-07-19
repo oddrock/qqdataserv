@@ -4,4 +4,10 @@
     <insert id="addTask" parameterType="com.ustcinfo.ai.mail.bean.PdfTask">
     	insert into t_pdf_task(batch_no,file_path,opt,task_status,from_email,from_subject,to_email,create_time,update_time)  values(#{batch_no},#{file_path},#{opt},#{task_status},#{from_email},#{from_subject},#{to_email},#{create_time},#{update_time})
     </insert>
+    <select id="getOneCompressTodoTask" resultType="com.ustcinfo.ai.mail.bean.PdfTask">
+		SELECT * FROM t_pdf_task WHERE task_status='todo' and opt='compress' and try_count&lt;3 ORDER BY create_time LIMIT 0,1
+	</select>
+	<update id="updateTaskStatus" parameterType="com.ustcinfo.ai.mail.bean.PdfTask">
+		update t_pdf_task set task_status=#{task_status},update_time=#{update_time},try_count=#{try_count} where id=#{id}
+	</update>
 </mapper>

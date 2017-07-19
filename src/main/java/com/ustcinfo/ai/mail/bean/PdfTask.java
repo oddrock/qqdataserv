@@ -8,6 +8,7 @@ import java.util.Date;
  *
  */
 public class PdfTask {
+	private int id;
 	private String batch_no;
 	private String file_path;
 	private String opt;
@@ -17,6 +18,20 @@ public class PdfTask {
 	private String to_email;
 	private Date create_time;
 	private Date update_time;
+	private int try_count;
+	
+	public int getTry_count() {
+		return try_count;
+	}
+	public void setTry_count(int try_count) {
+		this.try_count = try_count;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	public String getBatch_no() {
 		return batch_no;
 	}
@@ -73,10 +88,12 @@ public class PdfTask {
 	}
 	@Override
 	public String toString() {
-		return "PdfTask [batch_no=" + batch_no + ", file_path=" + file_path
-				+ ", opt=" + opt + ", task_status=" + task_status
+		return "PdfTask [id=" + id + ", batch_no=" + batch_no + ", file_path="
+				+ file_path + ", opt=" + opt + ", task_status=" + task_status
 				+ ", from_email=" + from_email + ", from_subject="
 				+ from_subject + ", to_email=" + to_email + ", create_time="
-				+ create_time + ", update_time=" + update_time + "]";
+				+ create_time + ", update_time=" + update_time + ", try_count="
+				+ try_count + "]";
 	}
+	
 }

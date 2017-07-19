@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.camel.Exchange;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
-
 import com.ustcinfo.ai.common.PropertiesManager;
 import com.ustcinfo.ai.mail.bean.PdfTask;
 import com.ustcinfo.common.file.UrlFileDownloader;
@@ -19,6 +17,8 @@ import com.ustcinfo.common.mail.bean.Email;
 import com.ustcinfo.common.mail.bean.EmailAttachment;
 import com.ustcinfo.common.qq.file.QQFileDownloader;
 import com.ustcinfo.common.qq.file.bean.QQFileHtmlUrls;
+import com.ustcinfo.common.shell.RmtShellUtils;
+import com.ustcinfo.common.shell.bean.RmtShellExcutorOutput;
 import com.ustcinfo.common.utils.DateUtils;
 import com.ustcinfo.common.utils.FileUtils;
 import com.ustcinfo.common.utils.MyBatisUtil;
@@ -43,7 +43,7 @@ public class Plugins4Mail {
 		}
 		Email[] emails = iem.parseEmail(iem.recvNewMail(imapServer, emailAccount, emailPasswd, folderName, readwriteFlag), attachmentLocalFolder);
 		if(emails.length==0){
-			logger.warn("没有任何邮件");
+			//logger.warn("没有任何邮件");
 		}
 		iem.showEmails(emails, false);
 		EmailAttachment ea = null;
@@ -187,7 +187,53 @@ public class Plugins4Mail {
 	
 	public String dotask(Exchange exchange, String payload){
 		logger.warn("has enter Plugins4Mail dotask method");
+		SqlSession sqlSession = MyBatisUtil.getSqlSession();
+		// 每次暂时只取一条任务执行
+		String statement = "com.ustcinfo.ai.mail.bean.PdfTaskMapper.getOneCompressTodoTask"; 
+		List<PdfTask> list = sqlSession.selectList(statement);
+		boolean hasTask = false;
+		if(list.size()>0){
+			PdfTask pdfTask = list.get(0);
+			pdfTask.setTask_status("doing");
+			pdfTask.setUpdate_time(new Date());
+			pdfTask.setTry_count(pdfTask.getTry_count()+1);
+			statement = "com.ustcinfo.ai.mail.bean.PdfTaskMapper.updateTaskStatus"; 
+			int retResult = sqlSession.update(statement,pdfTask);
+			if(retResult==1){
+				list.set(0, pdfTask);
+				hasTask = true;
+			}
+		}
+		sqlSession.close();
+		if(hasTask){
+			PdfTask doingtask = list.get(0);
+			logger.warn("start-执行转换任务："+doingtask.toString());
+			boolean success = false;
+			if("compress".equalsIgnoreCase(doingtask.getOpt())){
+				success = compressPdf(doingtask);
+			}
+			sqlSession = MyBatisUtil.getSqlSession();
+			if(success){
+				doingtask.setTask_status("done");
+				logger.warn("成功-执行转换任务："+doingtask.toString());
+			}else{
+				doingtask.setTask_status("todo");
+				logger.warn("失败-执行转换任务："+doingtask.toString());
+			}
+			doingtask.setUpdate_time(new Date());
+			statement = "com.ustcinfo.ai.mail.bean.PdfTaskMapper.updateTaskStatus"; 
+			sqlSession.update(statement,doingtask);
+			sqlSession.close();
+		}
 		logger.warn("has leave Plugins4Mail dotask method");
 		return payload;
+	}
+	
+	private boolean compressPdf(PdfTask pdfTask){
+		RmtShellExcutorOutput output = RmtShellUtils.excuteShell(PropertiesManager.getValue("pdfdealer.linuxsrv.ip")
+				,PropertiesManager.getValue("pdfdealer.linuxsrv.user")
+				,PropertiesManager.getValue("pdfdealer.linuxsrv.passwd")
+				,"nohup compress-pdf "+pdfTask.getFile_path()+" >/dev/null 2>&1 &");
+		return output.isSuccess();
 	}
 }
